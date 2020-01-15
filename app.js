@@ -37,7 +37,6 @@ wss.on("connection", function connection(ws) {
   con.on('message', (message) => {
     game.processMessage(ws, message);
   });
-   
 });
 
 server.listen(port);

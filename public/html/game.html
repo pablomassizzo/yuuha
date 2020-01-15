@@ -30,7 +30,7 @@
             position: relative;
          }
         
-        .cell{
+         .cell{
              width: calc(var(--size)/8);
              height: calc(var(--size)/8);
   			    position: absolute;
@@ -42,6 +42,11 @@
             background-color:steelblue;
          }
          
+         .status-section{
+            width: var(--size);
+            background-color: lightslategrey;
+         }
+
          .x1 {left: 0%;}
          .x2 {left: 12.5%;}
          .x3 {left: 25%;}
@@ -92,6 +97,9 @@
          socket.onmessage = function(event) {
             console.info(event.data);
             const gameState = JSON.parse(event.data);
+            setYourColor(gameState.yourColor);
+            updateStatus(gameState.status);
+            updateTurn(gameState.status, gameState.yourColor, gameState.turnColor);
             highlightCell(gameState.selectedCell);
             updateBoard(gameState.board);
             updateOffBoardPieces(gameState.offBoardPieces);
@@ -105,7 +113,37 @@
             socket.send("CLICK ON " + id);
          }
 
-         // highlight a selected cell
+         // set your color
+         function setYourColor(color){
+            $('#yourColor').contents().remove();
+            $('#yourColor').append("<h4>You play: " + color + "</h4>");  
+         }
+
+         // update turn information
+         function updateTurn(status, yourColor, turnColor){
+            $('#turn').contents().remove();
+            if(status==2) {
+               if(yourColor==turnColor){
+                  $('#turn').append("<h4>IT'S YOUR TURN!</h4>");
+               } else {
+                  $('#turn').append("<h4>waing for move from opponent...</h4>");
+               }
+            }
+         }
+
+         // update status
+         function updateStatus(status){
+            $("#status").contents().remove();
+            if(status==1){
+               $("#status").append("<h4>Waiting for player...</h4>");
+            } else if (status==2) {
+               $("#status").append("<h4>Play started<h4>"); 
+            } else if (status==3) {
+               $("#status").append("<h4>Play Stopped<h4>"); 
+            }
+         }
+
+         // highlight elected cell
          function highlightCell(cellId){
             console.debug("highlight:"+cellId);
             $('.cell').removeClass("highlight");
@@ -155,19 +193,29 @@
          }
 
       </script>
-
-
-<!-- script type="text/javascript">
-
-  
-
-      </script -->
-      
+   
    </head>
+
    <body>
 
-   <h2>Board<h2>
-         
+   <h2>Chess</h2>
+
+   <div class="status-section">
+      <H4>Your color:</H4>
+      <div id="yourColor"></div>
+   </div>
+
+   <div class="status-section">
+      <H4>Status:</H4>
+      <div id="status"></div>
+   </div>
+
+   <div class="status-section">
+      <H4>Turn:</H4>
+      <div id="turn"></div>
+   </div>
+
+   <h4>Board:<h4>  
    <div class="board">
 
       <div id="A1" class="cell white x1 y1"></div>
@@ -244,12 +292,12 @@
 
    </div>
    
-   <div style="background-color: lightslategrey;">
+   <div class="status-section">
       <H4>Off-board pieces:</H4>
       <div id="offBoardPieces"></div>
    </div>
 
-   <div style="background-color: lightslategrey;">
+   <div class="status-section">
       <H4>Moves:</H4>
       <div id="moves"></div>
    </div>
